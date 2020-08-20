@@ -1,6 +1,8 @@
 import os
 from flask import Flask
-
+from flask import (
+    Blueprint, flash, g, redirect, render_template, request, url_for
+)
 
 def create_app(test_config=None):
     # create and configure the app
@@ -23,6 +25,9 @@ def create_app(test_config=None):
     except OSError:
         pass
 
+    @app.route('/')
+    def hello():
+        return render_template('base.html')
     # from . import db
     # db.init_app(app)
 
