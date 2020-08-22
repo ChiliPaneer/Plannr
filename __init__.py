@@ -1,8 +1,25 @@
+# Python standard libraries
+import json
 import os
-from flask import Flask
+import sqlite3
+
+# Third party libraries
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, flash, g, redirect, render_template, request, url_for, Flask
 )
+from flask_login import (
+    LoginManager,
+    current_user,
+    login_required,
+    login_user,
+    logout_user,
+)
+from oauthlib.oauth2 import WebApplicationClient
+import requests
+
+# Internal imports
+from db import init_db_command
+from user import User
 
 def create_app(test_config=None):
     # create and configure the app
@@ -31,8 +48,8 @@ def create_app(test_config=None):
     # from . import db
     # db.init_app(app)
 
-    # from . import auth
-    # app.register_blueprint(auth.bp)
+    from . import auth
+    app.register_blueprint(auth.bp)
 
     # from . import calendar
     # app.register_blueprint(calendar.bp)
