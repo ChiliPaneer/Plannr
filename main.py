@@ -1,6 +1,7 @@
 # main.py
 from app import create_app
 
+# Creates and launches the application
 if __name__ == "__main__":
     app = create_app()
     app.run(ssl_context="adhoc")

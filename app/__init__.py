@@ -29,6 +29,10 @@ from flask_login import (
 from app.user import User
 
 def create_app(test_config=None):
+    """
+    The factory function for the whole application which initializes each component
+    of the app and connects them to the instantiated Flask app.
+    """
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     # app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)

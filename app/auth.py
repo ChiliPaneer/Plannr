@@ -23,21 +23,25 @@ import functools
 
 from werkzeug.security import check_password_hash, generate_password_hash
 
-bp = Blueprint('auth', __name__)
+# Creates the blueprint that will organize the views of the application
+bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-# Configuration
+# Configuration for the app to be authenticated by Google
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", None)
 GOOGLE_DISCOVERY_URL = (
     "https://accounts.google.com/.well-known/openid-configuration"
 )
 
-
 # OAuth2 client setup
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
 @bp.route("/")
 def index():
+    """
+    Template index page for the application to test whether the
+    google login works
+    """
     # return render_template('base.html')
     if current_user.is_authenticated:
         return (
@@ -51,9 +55,13 @@ def index():
     else:
         return '<a class="button" href="/login">Google Login</a>'
 
-
+# 
 @bp.route("/login")
 def login():
+    """
+    Login view that requests a google login and redirects to google's 
+    login page.
+    """
     # Find out what URL to hit for Google login
     google_provider_cfg = get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
@@ -70,6 +78,11 @@ def login():
 
 @bp.route("/login/callback")
 def callback():
+    """
+    The view that google redirects to after you have logged in, which takes the
+    response sent by google and tries to create a new User object with the information.
+    It handles any errors that may occur and then logs in the user in our app. 
+    """
     # Get authorization code Google sent back to you
     code = request.args.get("code")
 
@@ -133,10 +146,18 @@ def callback():
 @bp.route("/logout")
 @login_required
 def logout():
+    """
+    The logout view which, surprisingly, logs outs the current user 
+    and redirects to the index page.
+    """
     logout_user()
     return redirect(url_for("auth.index"))
 
 
 def get_google_provider_cfg():
+    """
+    Retrieves Google’s provider configuration to help with authentication and
+    specifically with OAuth, which google utilizes.
+    """
     return requests.get(GOOGLE_DISCOVERY_URL).json()
 
