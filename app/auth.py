@@ -3,9 +3,10 @@ import json
 import os
 
 # Third party libraries
-from flask import redirect, request, url_for
+from flask import (
+    Blueprint, flash, g, redirect, render_template, request, session, url_for
+)
 from flask_login import (
-    LoginManager,
     current_user,
     login_required,
     login_user,
@@ -15,10 +16,14 @@ from oauthlib.oauth2 import WebApplicationClient
 import requests
 
 # Internal imports
-from db import init_db_command
-from user import User
+from app.db import init_db_command, get_db
+from app.user import User
 
-bp = Blueprint('auth', __name__, url_prefix='/auth')
+import functools
+
+from werkzeug.security import check_password_hash, generate_password_hash
+
+bp = Blueprint('auth', __name__)
 
 # Configuration
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
@@ -27,40 +32,24 @@ GOOGLE_DISCOVERY_URL = (
     "https://accounts.google.com/.well-known/openid-configuration"
 )
 
-# User session management setup
-# https://flask-login.readthedocs.io/en/latest
-login_manager = LoginManager()
-login_manager.init_app(app)
-
-
-@login_manager.unauthorized_handler
-def unauthorized():
-    return "You must be logged in to access this content.", 403
-
 
 # OAuth2 client setup
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
-
-# Flask-Login helper to retrieve a user from our db
-@login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
-
-
-# @bp.route("/")
-# def index():
-#     if current_user.is_authenticated:
-#         return (
-#             "<p>Hello, {}! You're logged in! Email: {}</p>"
-#             "<div><p>Google Profile Picture:</p>"
-#             '<img src="{}" alt="Google profile pic"></img></div>'
-#             '<a class="button" href="/logout">Logout</a>'.format(
-#                 current_user.name, current_user.email, current_user.profile_pic
-#             )
-#         )
-#     else:
-#         return '<a class="button" href="/login">Google Login</a>'
+@bp.route("/")
+def index():
+    # return render_template('base.html')
+    if current_user.is_authenticated:
+        return (
+            "<p>Hello, {}! You're logged in! Email: {}</p>"
+            "<div><p>Google Profile Picture:</p>"
+            '<img src="{}" alt="Google profile pic"></img></div>'
+            '<a class="button" href="/logout">Logout</a>'.format(
+                current_user.name, current_user.email, current_user.profile_pic
+            )
+        )
+    else:
+        return '<a class="button" href="/login">Google Login</a>'
 
 
 @bp.route("/login")
@@ -138,14 +127,14 @@ def callback():
     login_user(user)
 
     # Send user back to homepage
-    return redirect(url_for("index"))
+    return redirect(url_for("auth.index"))
 
 
 @bp.route("/logout")
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for("index"))
+    return redirect(url_for("auth.index"))
 
 
 def get_google_provider_cfg():

@@ -1,6 +1,6 @@
 from flask_login import UserMixin
 
-from db import get_db
+from app.db import get_db
 
 
 class User(UserMixin):
@@ -36,7 +36,7 @@ class User(UserMixin):
         db.commit()
 
     @staticmethod
-    def set_calendars(id_, email, calendar_list)
+    def set_calendars(id_, email, calendar_list):
         for calendar_id in calendar_list:
             db.execute(
                 "INSERT INTO calendar (id, email, calendar_id)"

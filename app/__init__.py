@@ -1,25 +1,32 @@
-# Python standard libraries
-import json
-import os
-import sqlite3
+# # Python standard libraries
+# import json
+# import os
+# import sqlite3
 
-# Third party libraries
-from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for, Flask
-)
+# # Third party libraries
+# from flask import (
+#     Blueprint, flash, g, redirect, render_template, request, url_for, Flask
+# )
+# from flask_login import (
+#     LoginManager,
+#     current_user,
+#     login_required,
+#     login_user,
+#     logout_user,
+# )
+# from oauthlib.oauth2 import WebApplicationClient
+# import requests
+
+# # Internal imports
+# from db import init_db_command
+# from user import User
+
+import os
+from flask import Flask
 from flask_login import (
     LoginManager,
-    current_user,
-    login_required,
-    login_user,
-    logout_user,
 )
-from oauthlib.oauth2 import WebApplicationClient
-import requests
-
-# Internal imports
-from db import init_db_command
-from user import User
+from app.user import User
 
 def create_app(test_config=None):
     # create and configure the app
@@ -46,14 +53,28 @@ def create_app(test_config=None):
     # @app.route('/')
     # def hello():
     #     return render_template('base.html')
+
+    
+    # Flask-Login helper to retrieve a user from our db
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+
+    @login_manager.unauthorized_handler
+    def unauthorized():
+        return "You must be logged in to access this content.", 403
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.get(user_id)
+
     from . import db
     db.init_app(app)
 
-    # from . import auth
-    # app.register_blueprint(auth.bp)
+    from . import auth
+    app.register_blueprint(auth.bp)
+    # app.add_url_rule('/', endpoint='index')
 
     # from . import calendar
     # app.register_blueprint(calendar.bp)
-    # app.add_url_rule('/', endpoint='index')
 
     return app

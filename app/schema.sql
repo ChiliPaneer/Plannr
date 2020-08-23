@@ -2,11 +2,11 @@ CREATE TABLE user (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   email TEXT UNIQUE NOT NULL,
-  profile_pic TEXT NOT NULL,
+  profile_pic TEXT NOT NULL
 );
 
-CREATE TABLE calendar {
+CREATE TABLE calendar (
     id TEXT PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,
-    calendar_id TEXT NOT NULL,
-}
+    calendar_id TEXT NOT NULL
+);

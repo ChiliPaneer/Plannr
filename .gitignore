@@ -16,3 +16,5 @@ build/
 .vscode/
 login-tutorial/
 requirements.txt
+
+sqlite*
