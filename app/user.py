@@ -58,6 +58,6 @@ class User(UserMixin):
             db.execute(
                 "INSERT INTO calendar (id, email, calendar_id)"
                 " VALUES (?, ?, ?)",
-                (id_, email, calendar_id),
+                (calendar_id, email, id_),
             )
             db.commit()

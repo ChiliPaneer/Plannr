@@ -35,25 +35,25 @@ GOOGLE_DISCOVERY_URL = (
 
 # OAuth2 client setup
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
-
-@bp.route("/")
-def index():
-    """
-    Template index page for the application to test whether the
-    google login works
-    """
-    # return render_template('base.html')
-    if current_user.is_authenticated:
-        return (
-            "<p>Hello, {}! You're logged in! Email: {}</p>"
-            "<div><p>Google Profile Picture:</p>"
-            '<img src="{}" alt="Google profile pic"></img></div>'
-            '<a class="button" href="/logout">Logout</a>'.format(
-                current_user.name, current_user.email, current_user.profile_pic
-            )
-        )
-    else:
-        return '<a class="button" href="/login">Google Login</a>'
+    
+# @bp.route("/")
+# def index():
+#     """
+#     Template index page for the application to test whether the
+#     google login works
+#     """
+#     # return render_template('base.html')
+#     if current_user.is_authenticated:
+#         return (
+#             "<p>Hello, {}! You're logged in! Email: {}</p>"
+#             "<div><p>Google Profile Picture:</p>"
+#             '<img src="{}" alt="Google profile pic"></img></div>'
+#             '<a class="button" href="/logout">Logout</a>'.format(
+#                 current_user.name, current_user.email, current_user.profile_pic
+#             )
+#         )
+#     else:
+#         return '<a class="button" href="/login">Google Login</a>'
 
 # 
 @bp.route("/login")
@@ -140,7 +140,8 @@ def callback():
     login_user(user)
 
     # Send user back to homepage
-    return redirect(url_for("auth.index"))
+    # return redirect(url_for("auth.index"))
+    return redirect(url_for("index"))
 
 
 @bp.route("/logout")
@@ -151,7 +152,7 @@ def logout():
     and redirects to the index page.
     """
     logout_user()
-    return redirect(url_for("auth.index"))
+    return redirect(url_for("index"))
 
 
 def get_google_provider_cfg():
