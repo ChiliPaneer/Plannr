@@ -20,3 +20,4 @@ sqlite*
 
 .flaskenv
 .env
+credentials.json

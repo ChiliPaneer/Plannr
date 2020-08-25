@@ -4,7 +4,7 @@ import os
 
 # Third party libraries
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint, flash, g, redirect, render_template, request, session, url_for, current_app
 )
 from flask_login import (
     current_user,
@@ -19,43 +19,32 @@ import requests
 from app.db import init_db_command, get_db
 from app.user import User
 
-import functools
+# import functools
+# from werkzeug.security import check_password_hash, generate_password_hash
 
-from werkzeug.security import check_password_hash, generate_password_hash
+from googleapiclient.discovery import build
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
 
 # Creates the blueprint that will organize the views of the application
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 # Configuration for the app to be authenticated by Google
-GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
-GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", None)
+# GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
+# GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", None)
 GOOGLE_DISCOVERY_URL = (
     "https://accounts.google.com/.well-known/openid-configuration"
 )
+GOOGLE_CLIENT_ID = current_app.config["GOOGLE_CLIENT_ID"]
+GOOGLE_CLIENT_SECRET = current_app.config["GOOGLE_CLIENT_SECRET"]
+# GOOGLE_DISCOVERY_URL = current_app.config["GOOGLE_DISCOVERY_URL"]
+# GOOGLE_CREDENTIALS_JSON = current_app.config["GOOGLE_CREDENTIALS_JSON"]
 
 # OAuth2 client setup
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
-    
-# @bp.route("/")
-# def index():
-#     """
-#     Template index page for the application to test whether the
-#     google login works
-#     """
-#     # return render_template('base.html')
-#     if current_user.is_authenticated:
-#         return (
-#             "<p>Hello, {}! You're logged in! Email: {}</p>"
-#             "<div><p>Google Profile Picture:</p>"
-#             '<img src="{}" alt="Google profile pic"></img></div>'
-#             '<a class="button" href="/logout">Logout</a>'.format(
-#                 current_user.name, current_user.email, current_user.profile_pic
-#             )
-#         )
-#     else:
-#         return '<a class="button" href="/login">Google Login</a>'
 
-# 
+SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+
 @bp.route("/login")
 def login():
     """
@@ -65,6 +54,11 @@ def login():
     # Find out what URL to hit for Google login
     google_provider_cfg = get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+
+    # flow = InstalledAppFlow.from_client_secrets_file(
+    #     'credentials.json', SCOPES)
+    # creds = flow.run_local_server(port=0)
+    # service = build('calendar', 'v3', credentials=creds)
 
     # Use library to construct the request for login and provide
     # scopes that let you retrieve user's profile from Google

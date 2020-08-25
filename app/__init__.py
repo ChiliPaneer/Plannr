@@ -35,18 +35,19 @@ def create_app(test_config=None):
     """
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
-    # app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
-    app.config.from_mapping(
-        SECRET_KEY=os.environ.get("SECRET_KEY") or os.urandom(24),
-        DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
-    )
+    # app.config.from_mapping(
+    #     SECRET_KEY=os.environ.get("SECRET_KEY") or os.urandom(24),
+    #     DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
+    # )
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
-        app.config.from_pyfile('config.py', silent=True)
+        app.config.from_pyfile('../app/settings.py', silent=False)
     else:
         # load the test config if passed in
         app.config.from_mapping(test_config)
+        
+    app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 
     # ensure the instance folder exists
     try:
@@ -71,11 +72,13 @@ def create_app(test_config=None):
     def load_user(user_id):
         return User.get(user_id)
 
+    # print(app.config.get("GOOGLE_CLIENT_ID"))
+    # print(app.config.get("GOOGLE_CLIENT_SECRET"))
     from . import db
     db.init_app(app)
-
-    from . import auth
-    app.register_blueprint(auth.bp)
+    with app.app_context():
+        from . import auth
+        app.register_blueprint(auth.bp)
 
     from . import calendar
     app.register_blueprint(calendar.bp)

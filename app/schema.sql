@@ -18,4 +18,4 @@ CREATE TABLE group (
   group_id TEXT PRIMARY KEY,
   email TEXT NOT NULL,
   user_id TEXT NOT NULL
-)
+);
